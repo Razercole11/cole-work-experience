@@ -18,7 +18,7 @@ export function parseError(error: unknown): string;
  *  console.log(parsedError); // Test
  * }
  */
-export default function parseError(error: unknown): string | Record<string, string> {
+export function parseError(error: unknown): string | Record<string, string> {
 	if (typeof error === 'string') {
 		return error;
 	}

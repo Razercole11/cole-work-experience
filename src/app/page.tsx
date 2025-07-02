@@ -4,13 +4,21 @@ import { Input, Button, Title, Dropdown} from '@/components/ui/';
 import { ChangeEvent, FormEvent, Fragment } from 'react';
 import {formQuestions} from '@/schema';
 import { useState, useEffect } from 'react';
+import { formDataSchema } from '@/schema/form';
+import { parseError } from '@/utils/parseError';
+import { ZodError } from 'zod/v4';
 
 const initialState = {title:'mr', foreName:'', surName:'', address1:'', address2:'', address3:'', address4:'', address5:'', address6:'', DoB:'', niNumber:'', email:'', completionDate:'' }
+const errorState = {title:undefined, foreName:undefined, surName:undefined, address1:undefined, address2:undefined, address3:undefined, address4:undefined, address5:undefined, address6:undefined, DoB:undefined, niNumber:undefined, email:undefined, completionDate:undefined }
+
+type errorStateType = {title:undefined | string, foreName:undefined | string, surName:undefined | string, address1:undefined | string, address2:undefined | string, address3:undefined | string, address4:undefined | string, address5:undefined | string, address6:undefined | string, DoB:undefined | string, niNumber:undefined | string, email:undefined | string, completionDate:undefined | string }
+
 
 type formDataKeysType = keyof typeof initialState
 
 export default function Home() {
 	const [formData, setFormData] = useState(initialState)
+	const [formErrors, setFormErrors] = useState<errorStateType>(errorState); 
 
 	function updateForm(key:formDataKeysType, value:string){
 		setFormData((prev) => {
@@ -23,12 +31,33 @@ export default function Home() {
 
 	async function submitForm(e:FormEvent<HTMLFormElement>){
 		e.preventDefault()
-		const response = await fetch('/api', {
-			method: 'POST',
-			body: JSON.stringify(formData)
-		})
-		const text = await response.text()
-		console.log(text)
+		try {
+			formDataSchema.parse(formData);
+			const response = await fetch('/api', {
+				method: 'POST',
+				body: JSON.stringify(formData)
+			})
+			const text = await response.text()
+			console.log(text)
+		} catch (error) {
+			if (error instanceof ZodError) {
+			const parsed = JSON.parse(error.message)
+			const errorsArray = parsed.reduce((acc, err) => {
+				const key = err.path[0]
+				const val = err.message;
+				acc[key] = val;
+				return acc
+
+			}, {})
+				setFormErrors((prev) => {
+					return {
+						...prev,
+						...errorsArray
+					}
+				})
+			}
+		}
+		
 	}
 
 
@@ -70,6 +99,7 @@ export default function Home() {
 											onChange={(e) => {
 												updateForm(inputs.id, e.target.value)
 											}}
+											customError={formErrors[inputs.id]}
 										/>
 									</Fragment>
 								);

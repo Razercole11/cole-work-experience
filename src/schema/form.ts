@@ -1,19 +1,20 @@
 import * as z from "zod/v4";
+const genericErrorRequired = 'This is a required field'
 
-const formDataSchema = z.object({
+export const formDataSchema = z.object({
   title: z.string('Not a valid title!'),
-  foreName: z.string(),
-  surName: z.string(),
-  address1: z.string(),
+  foreName: z.string().min(1, {message: genericErrorRequired}),
+  surName: z.string().min(1, {message: genericErrorRequired}),
+  address1: z.string().min(1, {message: genericErrorRequired}),
   address2: z.string().optional().nullable(),
   address3: z.string().optional().nullable(),
-  address4: z.string(),
+  address4: z.string().min(1, {message: genericErrorRequired}),
   address5: z.string().optional().nullable(),
-  address6: z.string(),
-  DoB: z.string(),
-  niNumber: z.string(),
+  address6: z.string().min(1, {message: genericErrorRequired}),
+  DoB: z.string().min(1, {message: genericErrorRequired}),
+  niNumber: z.string().min(9, {message: genericErrorRequired}).max(9, {message: genericErrorRequired}),
   email: z.email(),
-  completionDate: z.string(),
+  completionDate: z.string().min(1, {message: genericErrorRequired}),
 });
 
 export const formQuestions = [
