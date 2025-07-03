@@ -92,7 +92,9 @@ export default function Home() {
 
   return (
     <>
+      <div className="w-full justify-items-center">
       <Title>New Client Form</Title>
+      </div>  
       <form
         className="bg-[#3f3f3f] gap-2 flex flex-col p-6 rounded-[50px] text-white w-full"
         onSubmit={submitForm}
