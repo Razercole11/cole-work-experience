@@ -1,22 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { formDataSchema} from "@/schema";
+import { formDataSchema } from "@/schema";
+import { parseError } from "@/utils";
 
 export async function POST(req: NextRequest) {
-  try{
-      const body = await req.json();
-      const result = formDataSchema.safeParse(body);
-      if(!result.success) {
-        const errors = result.error.issues;
-        return NextResponse.json({ error: {message: "Invalid request", errors}}, {status: 400});
-      }
-      console.log(body);
-    return new NextResponse("test", {
+  try {
+    const body = await req.json();
+    const validatedBody = formDataSchema.parse(body);
+    const fullname = `${validatedBody.foreName} ${validatedBody.surName}`;
+    const response = {
+      message: `Success - Completion statement for ${fullname} has now been created for ${validatedBody.completionDate}`,
+      error: null,
+    };
+    return new NextResponse(JSON.stringify(response), {
       status: 200,
-      headers: { "Content-Type": "text/plain" },
-    }
-    );
-  }catch(error) {
-     console.error("Error proccesing POST request:", error);
-     return NextResponse.json({error: {message: "Internal Server Error"}}, {status: 500});
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const parsedError = parseError(error);
+    const response = { message: null, error: parsedError };
+    return new NextResponse(JSON.stringify(response), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-} 
+}
