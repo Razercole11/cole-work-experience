@@ -54,9 +54,7 @@ type errorStateType = {
 
 type formDataKeysType = keyof typeof initialState;
 
-export  const [formData, setFormData] = useState(initialState);
-
-export default function mainForm() {
+export default function MainForm() {
   const [formData, setFormData] = useState(initialState);
   const [formErrors, setFormErrors] = useState<errorStateType>(errorState);
 
